@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/usr/local/bin/ruby
 
 $:.unshift File.join(File.dirname(__FILE__), '../lib/shiv')
 
@@ -135,7 +135,6 @@ end
 
 args = ARGV
 opt.each do |opt, arg|
-      puts opt
      case opt
        when 'showbox'
           ARGV.each do |a|
