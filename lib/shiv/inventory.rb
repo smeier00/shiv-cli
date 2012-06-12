@@ -147,6 +147,18 @@ def addhosting(args)
 
 end
 
+def addlink(args)
+ ws = "/inv/addlink"
+ payload ={
+    "obj1" => args[1],
+    "obj2" => args[2],
+    "commit" => "Submit"
+  }.to_json
+
+  post(ws,payload)
+
+end
+
 def removehosting(args)
 #h.removehosting(["test2.sdsc.edu","CM000001"])
   ws = "/inv/removehosting"
@@ -189,11 +201,12 @@ def newhost(args)
  ws = "/inv/newhost"
  payload ={
     "name" => args[1],
+    "traits" => args.slice(2, args.size - 2),
     "commit" => "Submit"
   }.to_json
 
   post(ws,payload)
-  addhosttrait(tmp)
+  # addhosttrait(tmp)
 end
 
 def new(args)
@@ -201,9 +214,9 @@ def new(args)
  #Call addhosttrait and set <obj_name> type=<type>
  #Arg[0] => type
  #Arg[1] => obj_name
-  tmp = ["filler",args[1],"type\=#{args[0]}"]
+ #  tmp = ["filler",args[1],"type\=#{args[0]}"]
   newhost(args)
-  addhosttrait(tmp)
+ # addhosttrait(tmp)
 end
 
 def showhost(args)

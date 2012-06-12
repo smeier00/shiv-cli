@@ -1,4 +1,4 @@
-#!/usr/local/bin/ruby
+#!/usr/bin/env ruby
 
 $:.unshift File.join(File.dirname(__FILE__), '../lib/shiv')
 
@@ -17,49 +17,20 @@ require 'inventory'
 @@debug = nil
 @@host = 'inv.sdsc.edu'
 @@port = '3000'
-@@ssl = false
+@@ssl = true
 @@machine_readable = false
 
 def help_local
 #Probably will nuke this at some point, or use for client specific help messages.
     <<EOF
-
-    Available parameters:
+    Required parameters:
+        --user <username> or set SHIV_USER in environment 
+        --password <password> or set SHIV_PASS in environment
+    Optional parameters:
         --host <host number>
         --port <port number>
-        --user <username>
-        --password <password>
         --ssl  Enable SSL
-
-    Available commands:
-        listhost,lshost
-        listbox,lsbox
-        list <type>
-        new  <type>
-        newhost
-        newbox
-        showhost
-        showbox
-        show
-        addhosting
-        removehosting,delhosting,rmhosting
-        addhosttrait,ht,tt
-        removehosttrait,delhosttrait,rmhosttrait,rmht,rmtt
-        addboxtrait,bt
-        removeboxtrait,delboxtrait,rmboxtrait,rmbt
-        addhosttag,addhtag,addttag
-        removehosttag,delhosttag,rmhosttag,delhtag,rmhtag,rmttag
-        addboxtag,addbtag
-        removeboxtag,delboxtag,rmboxtag,removebtag,delbtag,rmbtag
-        note,notes **
-        addnote,addnotes **
-        locate **
-        available **
-        whatsthere
-        search
-        esearch
-        showt **
-        ** => not yet implemented
+        --no-ssl  Disable SSL [SSL Enabled by default]
 EOF
 
 end
@@ -70,6 +41,7 @@ opts = GetoptLong.new(
       [ '--host', '-H', GetoptLong::REQUIRED_ARGUMENT ],
       [ '--port', '-p', GetoptLong::REQUIRED_ARGUMENT ],
       [ '--ssl', '-s', GetoptLong::NO_ARGUMENT ],
+      [ '--no-ssl', '-n', GetoptLong::NO_ARGUMENT ],
       [ '--user', '-U', GetoptLong::REQUIRED_ARGUMENT ],
       [ '--password', '-P', GetoptLong::REQUIRED_ARGUMENT ],
       [ '--machine-readable', '-m', GetoptLong::NO_ARGUMENT ],
@@ -89,6 +61,8 @@ begin
                  @@password = arg.to_s.chomp
             when "--ssl"
                  @@ssl = true
+            when "--no-ssl"
+                 @@ssl = false
             when "--debug"
                 @@debug = true
             when "--machine-readable"
@@ -96,28 +70,30 @@ begin
         end
     end
 rescue
-    puts help
+    puts help_local
     exit(1)
 end
 
 
 @@shivurl= @@ssl ? 'https://' + @@host + ':' + @@port : 'http://' + @@host + ':' + @@port
-@@test_password = "true" #Testing password option. True allows for "no password" in testing phase.
+@@test_password = "false" #Testing password option. True allows for "no password" in testing phase.
 
 # Parse command options
 opt = ARGV[0] 
 
 if opt.nil? #No options, No service.
-  puts help
+  puts help_local
   exit
 end
 
 ###TODO, source USERNAME/PASSWORD environment variables
+@@user ||= ENV['SHIV_USER']
+@@password ||= ENV['SHIV_PASS']
 if @@test_password == "false"
 
   if @@user.nil? or @@password.nil?
     puts "Error: Missing username or password"
-    puts help
+    puts help_local
     exit
   end
 
@@ -172,11 +148,15 @@ opt.each do |opt, arg|
             newhost(args)
        when 'new'
            args.shift
+           type=args[0]
+           args << "type=#{type}"
            new(args)
        when 'showhost','show'
             puts showhost(args)
        when 'addhosting'
             addhosting(args) 
+       when 'addlink'
+            addlink(args)
        when 'removehosting','rmhosting','delhosting'
             removehosting(args)
        when 'addhosttag','addhtag','addtag'
