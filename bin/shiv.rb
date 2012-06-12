@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/usr/local/bin/ruby
 
 $:.unshift File.join(File.dirname(__FILE__), '../lib/shiv')
 
