@@ -157,6 +157,8 @@ opt.each do |opt, arg|
             addhosting(args) 
        when 'addlink'
             addlink(args)
+       when 'removelink','rmlink'
+            removelink(args)
        when 'removehosting','rmhosting','delhosting'
             removehosting(args)
        when 'addhosttag','addhtag','addtag'

@@ -159,6 +159,18 @@ def addlink(args)
 
 end
 
+def removelink(args)
+ ws = "/inv/removelink"
+ payload ={
+    "obj1" => args[1],
+    "obj2" => args[2],
+    "commit" => "Submit"
+  }.to_json
+
+  post(ws,payload)
+
+end
+
 def removehosting(args)
 #h.removehosting(["test2.sdsc.edu","CM000001"])
   ws = "/inv/removehosting"
