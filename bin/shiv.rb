@@ -174,6 +174,8 @@ opt.each do |opt, arg|
        when 'whatsthere'
             #puts ShivController.new.shivcmd_WHATSTHERE([args[1]])
             whatsthere(args)
+	   when 'delete'
+			delete(args)
        when 'note'
            note(args)
        when 'addnote'

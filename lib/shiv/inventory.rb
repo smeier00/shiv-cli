@@ -294,6 +294,15 @@ def addhosttrait(args)
   post(ws,payload)
 end
 
+def delete(args)
+  ws = "/inv/delete"
+  payload ={
+	"name" => args[1]
+  }.to_json
+  post(ws,payload)
+end
+
+
 ########Search###############
 def esearch(args)
   args.delete_at(0)
