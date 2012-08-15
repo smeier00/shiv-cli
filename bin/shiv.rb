@@ -176,6 +176,8 @@ opt.each do |opt, arg|
             whatsthere(args)
 	   when 'delete'
 			delete(args)
+	   when 'rename'
+			rename(args)
        when 'note'
            note(args)
        when 'addnote'
