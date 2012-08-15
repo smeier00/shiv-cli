@@ -302,6 +302,15 @@ def delete(args)
   post(ws,payload)
 end
 
+def rename(args)
+  ws = "/inv/rename"
+  payload ={
+	"oldName" => args[1]
+	"newName" => args[2]
+  }.to_json
+  post(ws,payload)
+end
+
 
 ########Search###############
 def esearch(args)
