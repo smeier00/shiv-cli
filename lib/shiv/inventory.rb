@@ -52,15 +52,15 @@ end
 
 def showbox(args)
    if args.nil?
-     puts help
+     return help
      exit
    end
    ws = "/inv/showbox?name=#{args}&format=json"
    result = get(ws)
    if @@machine_readable then
-       puts result
+       return result
    else 
-       puts JSON.parse(result).to_yaml
+       return JSON.parse(result).to_yaml
    end
 end
 
@@ -77,9 +77,9 @@ def listbox
   ws = "/inv/listbox?format=json"
   result = get(ws)
   if @@machine_readable then
-    puts result
+    return result
   else
-    puts JSON.parse(result).to_yaml
+    return JSON.parse(result).to_yaml
   end
 end
 
@@ -191,9 +191,9 @@ def listhost
    ws = "/inv/listhost?format=json"
    result = get(ws)
    if @@machine_readable then
-     puts result
+     return result
    else
-     puts JSON.parse(result).to_yaml
+     return JSON.parse(result).to_yaml
    end
 end
 
@@ -201,9 +201,9 @@ def listtypes
   ws = "/inv/listtypes?format=json"
   result = get(ws)
    if @@machine_readable then
-     puts result
+     return result
    else
-     puts JSON.parse(result).to_yaml
+     return JSON.parse(result).to_yaml
    end
 end
 
@@ -236,7 +236,7 @@ def showhost(args)
   #ShivController.new.shivcmd_SHOWHOST([args[1]])
   host = CGI.escape(args[1])
   if host.nil?
-    puts help
+    return help
     exit
   end
   ws = "/inv/showhost?name=#{host}&format=json"
@@ -322,10 +322,10 @@ def esearch(args)
   ws="/inv/search?extended=true&#{search_params}format=json"
   result=get(ws)
   if @@machine_readable then
-    puts result
+    return result
   else
     #puts JSON.parse(result)
-    puts JSON.parse(result).to_yaml
+    return JSON.parse(result).to_yaml
   end
 end
 
@@ -338,10 +338,10 @@ def search(args)
   ws="/inv/search?#{search_params}format=json"
   result=get(ws)
   if @@machine_readable then
-    puts result
+    return result
   else
     #puts JSON.parse(result)
-    puts JSON.parse(result).to_yaml
+    return JSON.parse(result).to_yaml
   end
 end
 #####################################
@@ -349,7 +349,7 @@ end
 ####showt
 def showt(args)
   #ShivController.new.shivcmd_SHOWT(args)
-  puts "TODO: showt still needs to be implemented"
+  return "TODO: showt still needs to be implemented"
 end
 
 def whatsthere(args)
@@ -357,9 +357,9 @@ def whatsthere(args)
  ws = "/inv/whatsthere?search_text=#{args[1]}&format=json"
  result=get(ws)
  if @@machine_readable then
-   puts result.to_yaml
+   return result.to_yaml
  else
-   puts result.to_yaml
+   return result.to_yaml
  end
 end
 
@@ -368,10 +368,10 @@ def note(args)
  ws = "/inv/note?search_text=#{args[1]}&format=json"
  result=get(ws)
  if @@machine_readable then
-   puts result
+   return result
  else
    #puts JSON.parse(result).to_yaml
-   puts result
+   return result
  end
 end
 
@@ -391,6 +391,6 @@ def help(args)
 
   ws = "/inv/help?search_text=#{args[1]}&format=json"
   result=get(ws)
-  puts result
+  return result
 end
 #######

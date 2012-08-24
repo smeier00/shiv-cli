@@ -116,75 +116,75 @@ opt.each do |opt, arg|
           ARGV.each do |a|
            @box = ARGV[1] 
           end
-          showbox(@box) 
+          puts showbox(@box) 
        when 'newbox','nb'
            puts newbox
        when 'listbox','lsbox'
-            listbox
+            puts listbox
        when 'addboxtrait','bt'
-           addboxtrait(args)
+           puts addboxtrait(args)
        when 'removeboxtrait','rmbt'
-           removeboxtrait(args)
+           puts removeboxtrait(args)
        when 'addboxtag','addbtag'
-           addboxtag(args)
+           puts addboxtag(args)
        when 'removeboxtag','rmbtag'
-           removeboxtags(args)
+           puts removeboxtags(args)
        when 'search'
           search_args=separate_args(args)
-          search(search_args)
+          puts search(search_args)
        when 'esearch'
           search_args=separate_args(args)
           puts "esearch #{search_args.inspect}"
-          esearch(search_args)
+          puts esearch(search_args)
        when 'listhost'
-            listhost
+            puts listhost
        when 'list'
             type = ["esearch","type\=#{args[1]}"]
             search_args = separate_args(type)
-            search(search_args)
+            puts search(search_args)
        when 'listtypes','listtype'
-            listtypes
+            puts listtypes
        when 'newhost'
-            newhost(args)
+            puts newhost(args)
        when 'new'
            args.shift
            type=args[0]
            args << "type=#{type}"
-           new(args)
+           puts new(args)
        when 'showhost','show'
             puts showhost(args)
        when 'addhosting'
-            addhosting(args) 
+            puts addhosting(args) 
        when 'addlink'
-            addlink(args)
+            puts addlink(args)
        when 'removelink','rmlink'
-            removelink(args)
+            puts removelink(args)
        when 'removehosting','rmhosting','delhosting'
-            removehosting(args)
+            puts removehosting(args)
        when 'addhosttag','addhtag','addtag'
-            addhosttag(args)
+            puts addhosttag(args)
        when 'removehosttag','delhosttag','rmhosttag','delhtag','rmhtag','rmtag'
-            removehosttag(args)
+            puts removehosttag(args)
        when 'addhosttrait','ht','at'
-           addhosttrait(args)
+           puts addhosttrait(args)
        when 'removehosttrait','rmht','delhosttrait','rmt'
-            removehosttrait(args)
+            puts removehosttrait(args)
        when 'showt'
-          showt(args)
+          puts showt(args)
        when 'whatsthere'
             #puts ShivController.new.shivcmd_WHATSTHERE([args[1]])
-            whatsthere(args)
+            puts whatsthere(args)
 	   when 'delete'
-			delete(args)
+			puts delete(args)
 	   when 'rename'
-			rename(args)
+			puts rename(args)
        when 'note'
-           note(args)
+           puts note(args)
        when 'addnote'
-           addnote(args)
+           puts addnote(args)
        when 'help'
-           help(args)
+           puts help(args)
        else
-           help(args)
+           puts help(args)
        end
 end
