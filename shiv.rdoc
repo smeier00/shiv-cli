@@ -1,0 +1,5 @@
+= shiv
+
+Generate this with
+    shiv rdoc
+After you have described your command line interface

@@ -1,0 +1,120 @@
+#!/usr/bin/env ruby
+require 'gli'
+require 'shiv'
+require 'rest-client'
+require 'json'
+require 'highline/import'
+
+include GLI::App
+
+$url = "http://localhost:3000"
+$user = ENV['SHIV_USER']
+$password = ENV['SHIV_PASS']
+
+program_desc 'Shiv CLI yummy goodness.'
+
+version Shiv::VERSION
+
+## Global switches:
+desc 'Be verbose'
+switch [:v,:verbose], :negatable => false
+
+## Global flags
+#desc 'Describe some flag here'
+#default_value 'the default'
+#arg_name 'The name of the argument'
+#flag [:f,:flagname]
+
+
+################################################################################
+#                                                                              #
+# Core Tasks                                                                   #
+#                                                                              #
+################################################################################
+
+desc 'Get Auth token'
+command [:auth] do |auth|
+  auth.action do |global_options,options,args|
+    puts "authenticating..."
+    payload = { "email" => ENV['SHIV_USER'], "password" => ENV['SHIV_PASS'] }
+    response = JSON.parse(RestClient.post("#{$url}/tokens.json", payload, :content_type => :json))
+    puts "Setting token to: #{response['token']}"
+    $token = response['token']
+  end
+end
+
+desc 'Destroy auth token'
+command [:logout, :signout, :quit] do |logout|
+  logout.action do |global_options,options,args|
+    puts "logging out..."
+    response = RestClient.delete("#{$url}/token/#{$token}.json")
+    puts response.to_str
+  end
+end
+
+
+
+################################################################################
+#                                                                              #
+# Host Related Tasks                                                           #
+#                                                                              #
+################################################################################
+
+require 'shiv-host.rb'
+
+################################################################################
+#                                                                              #
+# Box Related Tasks                                                            #
+#                                                                              #
+################################################################################
+
+require 'shiv-box.rb'
+
+################################################################################
+#                                                                              #
+# Contact Related Tasks                                                        #
+#                                                                              #
+################################################################################
+
+require 'shiv-contact.rb'
+
+################################################################################
+#                                                                              #
+# Cloud Related Tasks                                                          #
+#                                                                              #
+################################################################################
+
+#require 'shiv-cloud.rb'
+
+
+pre do |global,command,options,args|
+  # Pre logic here
+  # Return true to proceed; false to abort and not call the
+  # chosen command
+  # Use skips_pre before a command to skip this block
+  # on that command only
+
+  if not $token
+    payload = { "email" => $user, "password" => $password }
+    response = JSON.parse(RestClient.post("#{$url}/tokens.json", payload, :content_type => :json))
+    puts "Setting token to: #{response['token']}" if global[:verbose]
+    $token = response['token']
+  end
+
+  true
+end
+
+post do |global,command,options,args|
+  # Post logic here
+  # Use skips_post before a command to skip this
+  # block on that command only
+  puts "success!" if global[:verbose]
+end
+
+on_error do |exception|
+  # Error logic here
+  # return false to skip default error handling
+  true
+end
+
+exit run(ARGV)
