@@ -7,7 +7,7 @@ require 'highline/import'
 
 include GLI::App
 
-$url = "http://localhost:3000"
+$url = ENV['SHIV_URL'] ? ENV['SHIV_URL'] : "https://shiv.sdsc.edu"
 $user = ENV['SHIV_USER']
 $password = ENV['SHIV_PASS']
 
