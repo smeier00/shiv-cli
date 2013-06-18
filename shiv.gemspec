@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["jd@sdsc.edu"]
   spec.description   = "Shiv command line client interface to internal inventory systems"
   spec.summary       = "Write a gem summary"
-  spec.homepage      = ""
+  spec.homepage      = "https://shiv.sdsc.edu"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
