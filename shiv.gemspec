@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'shiv/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "shiv"
+  spec.name          = "shiv-cli"
   spec.version       = Shiv::VERSION
   spec.authors       = ["JD Bottorf"]
   spec.email         = ["jd@sdsc.edu"]
