@@ -1,11 +1,7 @@
 PATH
   remote: .
   specs:
-    shiv (0.0.1)
-      gli
-      highline
-      json
-      rest-client
+    shiv-cli (0.0.1)
 
 GEM
   remote: https://rubygems.org/
@@ -49,4 +45,4 @@ DEPENDENCIES
   json
   rake
   rest-client
-  shiv!
+  shiv-cli!
