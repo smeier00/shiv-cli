@@ -2,6 +2,9 @@ PATH
   remote: .
   specs:
     shiv-cli (0.0.1)
+      gli
+      highline
+      rest-client
 
 GEM
   remote: https://rubygems.org/
