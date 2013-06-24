@@ -32,6 +32,8 @@ switch [:v,:verbose], :negatable => false
 #                                                                              #
 ################################################################################
 
+exit_now!("\n\n** Make sure your shiv username and password are set using the environment variables SHIV_USER and SHIV_PASS.\n\n") if $user.empty? or $password.empty?
+
 desc 'Get Auth token'
 command [:auth] do |auth|
   auth.action do |global_options,options,args|
