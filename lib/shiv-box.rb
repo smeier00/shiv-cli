@@ -45,7 +45,7 @@ command [:box, :boxes] do |b|
     rm.action do |global_options,options,args|
       help_now!('boxname string is required') if args.empty?
       box_id = ShivBox.get_box_id_from_boxname(args.shift)
-      response = RestClient.delete("#{$url}/boxes/#{box_id}.json", {:params => {:auth_token => $token}})
+      response = RestClient.delete("#{$url}/boxes/#{box_id}.json", {:params => {:auth_token => $token}}) if box_id != false
     end
   end
 
@@ -61,9 +61,9 @@ command [:box, :boxes] do |b|
       #TODO: add more sanitization of input arguments
       help_now!('box string is required') if args.empty?
 
-      box_id = ShivBox.get_box_id_from_boxname(args.shift)
-      response = JSON.parse(RestClient.get("#{$url}/boxes/#{box_id}.json", {:params => {:auth_token => $token, :notes => options[:n]}}))
-      puts response.to_yaml
+      box_id = ShivBox.get_box_id_from_boxname(args.shift, global_options[:prompt])
+      response = JSON.parse(RestClient.get("#{$url}/boxes/#{box_id}.json", {:params => {:auth_token => $token, :notes => options[:n]}})) if box_id != false
+      puts response.to_yaml unless response.nil?
     end
 
   end
@@ -80,7 +80,7 @@ command [:box, :boxes] do |b|
       host_id = ShivHost.get_host_id_from_hostname(args.shift)
       payload = { "host" => { "box_id" => "#{box_id}" }, :auth_token => $token}.to_json
       url = "#{$url}/hosts/#{host_id}.json"
-      response = (RestClient.put url, payload, :content_type => :json)
+      response = (RestClient.put url, payload, :content_type => :json) if box_id != false && host_id != false
       puts response.to_str unless response.to_str.empty?
     end
   end
@@ -99,7 +99,7 @@ command [:box, :boxes] do |b|
 
       payload = { "host" => { "box_id" => nil }, :auth_token => $token}.to_json
       url = "#{$url}/hosts/#{host_id}.json"
-      response = (RestClient.put url, payload, :content_type => :json)
+      response = (RestClient.put url, payload, :content_type => :json) if box_id != false && host_id != false
       puts response.to_str unless response.to_str.empty?
     end
   end
@@ -120,7 +120,7 @@ command [:box, :boxes] do |b|
 
       url = "#{$url}/boxes/#{box_id}.json"
       payload = { "box" => { "#{args[1]}" => "#{args[2]}" }, :auth_token => $token }.to_json
-      response = (RestClient.put url, payload, :content_type => :json)
+      response = (RestClient.put url, payload, :content_type => :json) if box_id != false
       puts response.to_str unless response.to_str.empty?
     end
   end
@@ -135,7 +135,7 @@ command [:box, :boxes] do |b|
 
       url = "#{$url}/boxes/#{box_id}.json"
       payload = {"box" => { "#{args[1]}" => nil}, :auth_token => $token}.to_json
-      response = (RestClient.put url, payload, :content_type => :json)
+      response = (RestClient.put url, payload, :content_type => :json) if box_id != false
       puts response.to_str unless response.to_str.empty?
     end
   end
@@ -152,7 +152,7 @@ command [:box, :boxes] do |b|
       ## Need to get the current tag list and append the new one to it
       ## otherwise, the entire tag list gets rewritten
       payload = {"box" => {"tag" => "#{args[1]}" }, :auth_token => $token}
-      response = (RestClient.put url, payload, :content_type => :json)
+      response = (RestClient.put url, payload, :content_type => :json) if box_id != false
       puts response.to_str unless response.to_str.empty?
     end
   end
@@ -167,7 +167,7 @@ command [:box, :boxes] do |b|
 
       url = "#{$url}/boxes/#{box_id}.json"
       payload = {"box" => {"rtag" => "#{args[1]}" }, :auth_token => $token}
-      response = (RestClient.put url, payload, :content_type => :json)
+      response = (RestClient.put url, payload, :content_type => :json) if box_id != false
       puts response.to_str unless response.to_str.empty?
     end
   end
@@ -184,7 +184,7 @@ command [:box, :boxes] do |b|
       ## Need to get the current note list and append the new one to it
       ## otherwise, the entire note list gets rewritten
       payload = {"box" => {"note" => "#{args[1]}" }, :auth_token => $token}
-      response = (RestClient.put url, payload, :content_type => :json)
+      response = (RestClient.put url, payload, :content_type => :json) if box_id != false
       puts response.to_str unless response.to_str.empty?
     end
   end
@@ -197,7 +197,7 @@ module ShivBox
   # Given a partial or full box name, search the database for LIKE values
   # If there are multiple choices, present those to the user and let them
   # choose which box they actually meant.
-  def ShivBox.get_box_id_from_boxname(boxname)
+  def ShivBox.get_box_id_from_boxname(boxname, prompt=true)
     url = "#{$url}/cli/searchBox.json"
     results = JSON.parse(RestClient.post url, {:search_text => boxname, :auth_token => $token})
     if results.count == 0
@@ -206,8 +206,14 @@ module ShivBox
       results.each_with_index do |r, index|
         puts "#{index}  - #{r["name"]}"
       end
-      puts "Found multiple matches: please choose one... "
-      json_index = ask("Which?   ", Integer) { |q| q.in = 0...results.size }
+
+      if prompt
+        puts "Found multiple matches: please choose one... "
+        json_index = ask("Which?   ", Integer) { |q| q.in = 0...results.size }
+      else
+        return false
+      end
+
     end
 
     results[json_index ? json_index : 0]['id']

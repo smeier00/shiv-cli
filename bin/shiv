@@ -16,8 +16,11 @@ program_desc 'Shiv CLI yummy goodness.'
 version Shiv::VERSION
 
 ## Global switches:
-desc 'Be verbose'
+desc 'Be verbose.'
 switch [:v,:verbose], :negatable => false
+
+desc 'Prompt for choice if there are multiple values matched.'
+switch [:p, :prompt]
 
 ## Global flags
 #desc 'Describe some flag here'

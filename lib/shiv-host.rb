@@ -23,8 +23,12 @@ command [:host, :hosts] do |h|
   h.command [:rmhost, :rm] do |rm|
     rm.action do |global_options,options,args|
       help_now!('hostname string is required') if args.empty?
-      host_id = ShivHost.get_host_id_from_boxname(args.shift)
-      response = RestClient.delete("#{$url}/hosts/#{host_id}.json", {:params => {:auth_token => $token}})
+      host_id = ShivHost.get_host_id_from_hostname(args.shift)
+      if host_id != false
+        response = RestClient.delete("#{$url}/hosts/#{host_id}.json", {:params => {:auth_token => $token}})
+      else
+        puts "Could not find host to delete."
+      end
     end
   end
 
@@ -41,10 +45,10 @@ command [:host, :hosts] do |h|
       #TODO: add more sanitization of input arguments
       help_now!('host string is required') if args.empty?
 
-      host_id = ShivHost.get_host_id_from_hostname(args.shift)
+      host_id = ShivHost.get_host_id_from_hostname(args.shift, global_options[:p])
       params =  "{ :params => { :auth_token => #{$token}}"
-      response = JSON.parse(RestClient.get("#{$url}/hosts/#{host_id}.json", {:params => {:auth_token => $token, :notes => options[:n]}}))
-      puts response.to_yaml
+      response = JSON.parse(RestClient.get("#{$url}/hosts/#{host_id}.json", {:params => {:auth_token => $token, :notes => options[:n]}})) if host_id != false
+      puts response.to_yaml unless response.nil?
     end
 
   end
@@ -98,7 +102,7 @@ command [:host, :hosts] do |h|
       ## Need to get the current tag list and append the new one to it
       ## otherwise, the entire tag list gets rewritten
       payload = {"host" => {"tag" => "#{args[1]}" }, :auth_token => $token}
-      response = (RestClient.put url, payload, :content_type => :json)
+      response = (RestClient.put url, payload, :content_type => :json) if host_id != false
       puts response.to_str unless response.to_str.empty?
     end
   end
@@ -113,7 +117,7 @@ command [:host, :hosts] do |h|
 
       url = "#{$url}/hosts/#{host_id}.json"
       payload = {"host" => {"rtag" => "#{args[1]}" }, :auth_token => $token}
-      response = (RestClient.put url, payload, :content_type => :json)
+      response = (RestClient.put url, payload, :content_type => :json) if host_id != false
       puts response.to_str unless response.to_str.empty?
     end
   end
@@ -130,7 +134,7 @@ command [:host, :hosts] do |h|
       ## Need to get the current note list and append the new one to it
       ## otherwise, the entire note list gets rewritten
       payload = {"host" => {"note" => "#{args[1]}" }, :auth_token => $token}
-      response = (RestClient.put url, payload, :content_type => :json)
+      response = (RestClient.put url, payload, :content_type => :json) if host_id != false
       puts response.to_str unless response.to_str.empty?
     end
   end
@@ -147,7 +151,7 @@ command [:host, :hosts] do |h|
       box_id = get_box_id_from_boxname(args.shift)
       payload = { "host" => { "box_id" => "#{box_id}" }, :auth_token => $token}.to_json
       url = "#{$url}/hosts/#{host_id}.json"
-      response = (RestClient.put url, payload, :content_type => :json)
+      response = (RestClient.put url, payload, :content_type => :json) if host_id != false
       puts response.to_str unless response.to_str.empty?
     end
   end
@@ -162,7 +166,7 @@ command [:host, :hosts] do |h|
       host_id = ShivHost.get_host_id_from_hostname(args.shift)
       payload = { "host" => { "box_id" => nil }, :auth_token => $token}.to_json
       url = "#{$url}/hosts/#{host_id}.json"
-      response = (RestClient.put url, payload, :content_type => :json)
+      response = (RestClient.put url, payload, :content_type => :json) if host_id != false
       puts response.to_str unless response.to_str.empty?
     end
   end
@@ -175,7 +179,7 @@ module ShivHost
   # Given a partial or full hostname, search the database for LIKE values
   # If there are multiple choices, present those to the user and let them
   # choose which host they actually meant.
-  def ShivHost.get_host_id_from_hostname(hostname)
+  def ShivHost.get_host_id_from_hostname(hostname, prompt=true)
     url = "#{$url}/cli/searchHost.json"
     results = JSON.parse(RestClient.post url, {:search_text => hostname, :auth_token => $token})
     if results.count == 0
@@ -184,8 +188,14 @@ module ShivHost
       results.each_with_index do |r, index|
         puts "#{index}  - #{r["name"]}"
       end
-      puts "Found multiple matches: please choose one... "
-      json_index = ask("Which?   ", Integer) { |q| q.in = 0...results.size }
+
+      if prompt
+        puts "Found multiple matches: please choose one... "
+        json_index = ask("Which?   ", Integer) { |q| q.in = 0...results.size }
+      else
+        return false
+      end
+
     end
 
     results[json_index ? json_index : 0]['id']
