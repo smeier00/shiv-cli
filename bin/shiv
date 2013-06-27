@@ -8,8 +8,9 @@ require 'highline/import'
 include GLI::App
 
 $url = ENV['SHIV_URL'] ? ENV['SHIV_URL'] : "https://shiv.sdsc.edu"
-$user = ENV['SHIV_USER']
-$password = ENV['SHIV_PASS']
+$user = $password = nil
+$user ||= ENV['SHIV_USER']
+$password ||= ENV['SHIV_PASS']
 
 program_desc 'Shiv CLI yummy goodness.'
 
@@ -35,7 +36,7 @@ switch [:p, :prompt]
 #                                                                              #
 ################################################################################
 
-exit_now!("\n\n** Make sure your shiv username and password are set using the environment variables SHIV_USER and SHIV_PASS.\n\n") if $user.empty? or $password.empty?
+exit_now!("\n\n** Make sure your shiv username and password are set using the environment variables SHIV_USER and SHIV_PASS.\n\n") if $user.nil? or $password.nil?
 
 desc 'Get Auth token'
 command [:auth] do |auth|
