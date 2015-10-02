@@ -14,8 +14,58 @@ command [:host, :hosts] do |h|
   h.arg_name 'hostname'
   h.command [:add, :new] do |add|
     add.action do |global_options,options,args|
-      #add a host code here...
+        host = Hash.new
+        host_traits = Hash.new
+
+        hostname = args.shift
+        fqdn_regex = /^(?=.{1,254}$)((?=[a-z0-9-]{1,63}\.)(xn--+)?[a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,63}$/
+
+        if hostname =~ fqdn_regex
+          host[:name] = hostname
+        else
+          help_now!("#{host} is not a valid fqdn. foo.domain | foo.domain.com")
+        end
+
+        ############# Add new host ##############################
+        payload = { "host" => host, :auth_token => $token}.to_json
+        url = "#{$url}/hosts.json"
+        response = (RestClient.post url, payload, :content_type => :json)
+        case response.code
+        when 200..299
+          if JSON.parse(response)['name']
+            puts "Created #{JSON.parse(response)['name']}"
+          else
+            exit_now!("#{JSON.parse(response)['message']}")
+          end
+        else
+          puts 'Failed to create new host!'
+        end
+        ############# Add traits ################################
+        if args.empty?
+          puts "prompt for some input"
+           #box[:vendor] = ask("Vendor?  ").capitalize
+           #box[:model] = ask("Model?  ").upcase
+           #box[:serial] = ask("Serial Number?  ").upcase
+           #box[:purchase_date] = ask("Purchase Date?  ", Date){ |q| q.default = Date.today.to_s}
+           #box[:location] = ask("Location? [format: SDSC_WEST:Z39:u15] ")
+        else
+          args.each do |arg|
+            if ShivHost.validtrait?(arg)
+              k,v = arg.split("=")
+              host_traits[k.to_sym] = v
+            else
+              help_now!("Invalid trait found: #{arg}   Valid trait: foo=bar")
+            end
+          end
+        end
+        host_id = ShivHost.get_host_id_from_hostname(hostname)
+        url = "#{$url}/hosts/#{host_id}.json"
+        payload = { "host" => host_traits, :auth_token => $token }.to_json
+        response = (RestClient.put url, payload, :content_type => :json)
+        puts response.to_str unless response.to_str.empty?
+       
     end
+
   end
 
   h.desc 'Remove a host'
@@ -60,16 +110,22 @@ command [:host, :hosts] do |h|
   h.command [:addtrait, :ht, :trait] do |ht|
     ht.action do |global_options,options,args|
       # sanitize the args first
-      help_now!('host, trait, and value need to be specified.') if args.size != 3
-      #TODO: allow traits to be assigned using '='
-      # ie. shiv host ht hostname trait_name=value
-      #TODO: allow multiple traits to be assigned at once
-      # ie. shiv host ht hostname trait1=value1 trait2=value2 trait3=value3
-
-      host_id = ShivHost.get_host_id_from_hostname(args[0])
+      help_now!('host, trait=value need to be specified.') if args.size < 2
+      host_traits = {}
+      hostname = args.shift
+      host_id = ShivHost.get_host_id_from_hostname(hostname)
+      help_now!("#{hostname} not found.") if host_id.to_s.empty? 
+      args.each do |arg|
+        if ShivHost.validtrait?(arg)
+          k,v = arg.split("=")
+          host_traits[k.to_sym] = v
+        else
+          help_now!("Invalid trait found: #{arg}   Valid trait: foo=bar")
+        end
+      end
 
       url = "#{$url}/hosts/#{host_id}.json"
-      payload = { "host" => { "#{args[1]}" => "#{args[2]}" }, :auth_token => $token }.to_json
+      payload = { "host" =>  host_traits, :auth_token => $token }.to_json
       response = (RestClient.put url, payload, :content_type => :json)
       puts response.to_str unless response.to_str.empty?
     end
@@ -200,6 +256,14 @@ module ShivHost
 
     results[json_index ? json_index : 0]['id']
 
+  end
+
+  def ShivHost.validtrait?(traitpair)
+    if traitpair =~ /^[a-zA-Z]*=\w|\S*$/
+      return true
+    else
+      return false
+    end
   end
 
 end
