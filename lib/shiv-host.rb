@@ -5,12 +5,12 @@ command [:host, :hosts] do |h|
   h.desc 'List all hosts'
   h.command [:all, :list] do |all|
     all.action do |global_options,options,args|
-      response = RestClient.get("#{$url}/cli/list_hosts.yaml", {:params => {:auth_token => $token}} )
+      response = RestClient.get("#{$url}/cli/list_hosts.#{$format}", {:params => {:auth_token => $token}} )
       puts response
     end
   end
 
-  h.desc 'Add a host - [incomplete]'
+  h.desc 'Add a host'
   h.arg_name 'hostname'
   h.command [:add, :new] do |add|
     add.action do |global_options,options,args|
@@ -42,12 +42,12 @@ command [:host, :hosts] do |h|
         end
         ############# Add traits ################################
         if args.empty?
-          puts "prompt for some input"
-           #box[:vendor] = ask("Vendor?  ").capitalize
-           #box[:model] = ask("Model?  ").upcase
-           #box[:serial] = ask("Serial Number?  ").upcase
-           #box[:purchase_date] = ask("Purchase Date?  ", Date){ |q| q.default = Date.today.to_s}
-           #box[:location] = ask("Location? [format: SDSC_WEST:Z39:u15] ")
+          #puts "prompt for some input"
+          #box[:vendor] = ask("Vendor?  ").capitalize
+          #box[:model] = ask("Model?  ").upcase
+          #box[:serial] = ask("Serial Number?  ").upcase
+          #box[:purchase_date] = ask("Purchase Date?  ", Date){ |q| q.default = Date.today.to_s}
+          #box[:location] = ask("Location? [format: SDSC_WEST:Z39:u15] ")
         else
           args.each do |arg|
             if ShivHost.validtrait?(arg)
@@ -98,7 +98,11 @@ command [:host, :hosts] do |h|
       host_id = ShivHost.get_host_id_from_hostname(args.shift, global_options[:p])
       params =  "{ :params => { :auth_token => #{$token}}"
       response = JSON.parse(RestClient.get("#{$url}/hosts/#{host_id}.json", {:params => {:auth_token => $token, :notes => options[:n]}})) if host_id != false
-      puts response.to_yaml unless response.nil?
+      if $format == 'yaml'
+        puts response.to_yaml unless response.nil?
+      else
+        puts response.to_json
+      end
     end
 
   end
@@ -259,7 +263,8 @@ module ShivHost
   end
 
   def ShivHost.validtrait?(traitpair)
-    if traitpair =~ /^[a-zA-Z]*=\w|\S*$/
+    if traitpair =~ /^\w*=\S*$/
+       puts "TRAITPAIR #{traitpair}"
       return true
     else
       return false
