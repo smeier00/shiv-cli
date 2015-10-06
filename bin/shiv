@@ -11,7 +11,7 @@ $url = ENV['SHIV_URL'] ? ENV['SHIV_URL'] : "https://shiv.sdsc.edu"
 $user = $password = nil
 $user ||= ENV['SHIV_USER']
 $password ||= ENV['SHIV_PASS']
-
+$format ||= ENV['SHIV_FORMAT'] ? ENV['SHIV_FORMAT'] : "yaml" #yaml or json
 program_desc 'Shiv CLI yummy goodness.'
 
 version Shiv::VERSION
@@ -92,6 +92,12 @@ require 'shiv-contact.rb'
 
 #require 'shiv-cloud.rb'
 
+################################################################################
+#                                                                              #
+# Search Related Tasks                                                         #
+#                                                                              #
+################################################################################
+require 'shiv-search.rb'
 
 pre do |global,command,options,args|
   # Pre logic here
