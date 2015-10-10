@@ -1,4 +1,4 @@
-= shiv
+= shiv-cli
 
 Generate this with
     shiv rdoc
