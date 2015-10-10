@@ -10,6 +10,15 @@ command [:host, :hosts] do |h|
     end
   end
 
+  h.desc 'List all hosts and traits'
+  h.command [:list_details] do |all|
+    all.action do |global_options,options,args|
+      response = RestClient.get("#{$url}/cli/list_host_details.#{$format}", {:params => {:auth_token => $token}} )
+      puts response
+    end
+  end
+
+
   h.desc 'Add a host'
   h.arg_name 'hostname'
   h.command [:add, :new] do |add|
