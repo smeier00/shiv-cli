@@ -6,11 +6,11 @@ require 'shiv/version'
 Gem::Specification.new do |spec|
   spec.name          = "shiv-cli"
   spec.version       = Shiv::VERSION
-  spec.authors       = ["JD Bottorf"]
+  spec.authors       = ["JD Bottorf, Steve Meier"]
   spec.email         = ["jd@sdsc.edu"]
   spec.description   = "Shiv command line client interface to internal inventory systems"
-  spec.summary       = "Write a gem summary"
-  spec.homepage      = "https://shiv.sdsc.edu"
+  spec.summary       = "Shiv CLI"
+  spec.homepage      = "https://github.com/smeier00/shiv-cli"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
