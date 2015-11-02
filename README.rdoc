@@ -1,6 +1,3 @@
-= shiv
+= shiv-cli
 
-Describe your project here
-
-:include:shiv.rdoc
 
